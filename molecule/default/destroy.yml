@@ -1,0 +1,20 @@
+---
+- hosts: molecule
+  name: prepare
+  tasks:
+    - name: Delete Kind Cluster
+      ansible.builtin.command: |-
+        {{
+          LOCAL_BIN_PATH
+        }}/kind delete cluster --name=molecule
+      changed_when: false
+
+    - name: Delete Terraform Files
+      ansible.builtin.file:
+        path: "{{ LOCAL_TFM_PATH }}/k8s_minio/{{ item }}"
+        state: absent
+      with_items:
+        - terraform.tfstate.d
+        - terraform.tfstate
+        - terraform.tfstate.backup
+        - .terraform.lock.hcl

@@ -1,0 +1,43 @@
+---
+- hosts: molecule
+  name: verify
+  tasks:
+    - name: Inspect Minio Secret
+      ansible.builtin.set_fact:
+        access_key: minio
+        secret_key: |-
+          {{
+            lookup('cloud.terraform.tf_output',
+            'minio_root_pass',
+            project_path=".")
+          }}
+
+    - name: Create NodePort Service
+      kubernetes.core.k8s:
+        namespace: minio
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: minioport
+          spec:
+            type: NodePort
+            selector:
+              v1.min.io/tenant: myminio
+            ports:
+              - name: http-minio
+                port: 80
+                protocol: TCP
+                targetPort: 9000
+                nodePort: 30007
+
+    - name: Create Minio Bucket
+      amazon.aws.s3_bucket:
+        access_key: "{{ access_key }}"
+        secret_key: "{{ secret_key }}"
+        endpoint_url: |-
+          http://{{ 
+            hostvars['molecule-control-plane']['docker_networksettings']
+            ['Networks']['kind']['IPAddress']
+          }}:30007
+        name: test

@@ -1,0 +1,5 @@
+---
+LOCAL_TFM_PATH: /tfm
+LOCAL_BIN_PATH: /_bin
+KUBECONFIG: /root/.kube/config
+K8S_AUTH_KUBECONFIG: /tmp/.k8sconfig/molecule/root/.kube/config
