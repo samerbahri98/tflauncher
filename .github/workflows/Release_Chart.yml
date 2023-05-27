@@ -12,8 +12,8 @@ jobs:
     strategy:
       matrix:
         test:
-          - 'http_public'
-          - 'http_private'
+          - 'http-public'
+          - 'http-private'
     steps:
       - uses: actions/checkout@v3
       - uses: azure/setup-helm@v3
