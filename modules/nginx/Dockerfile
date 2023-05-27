@@ -19,4 +19,4 @@ COPY  --chmod=0664 --chown=www-data:www-data ./build /var/www/modules/pub
 COPY  --chmod=0664 --chown=www-data:www-data ./build /var/www/modules/prv
 COPY  --from=git-repo --chown=www-data:www-data /bare /var/www/git/redis.git
 
-RUN rc-update add fcgiwrap && /etc/init.d/fcgiwrap start
+RUN /etc/init.d/fcgiwrap start
