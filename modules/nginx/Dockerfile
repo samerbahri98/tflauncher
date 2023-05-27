@@ -19,4 +19,8 @@ COPY  --chmod=0664 --chown=www-data:www-data ./build /var/www/modules/pub
 COPY  --chmod=0664 --chown=www-data:www-data ./build /var/www/modules/prv
 COPY  --from=git-repo --chown=www-data:www-data /bare /var/www/git/redis.git
 
-RUN /etc/init.d/fcgiwrap start
+ENV FCGI_SOCKET_OWNER="nginx"
+ENV FCGI_SOCKET_GROUP="nginx"
+ENV FCGI_MODE="700"
+
+RUN /etc/init.d/fcgiwrap.sh start
