@@ -26,3 +26,5 @@
 molecule/
 requirements.txt
 modules/
+
+test-values/
