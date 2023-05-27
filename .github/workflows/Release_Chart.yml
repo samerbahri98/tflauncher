@@ -14,10 +14,6 @@ jobs:
         test:
           - 'http_public'
           - 'http_private'
-    services:
-      websrv:
-        image: 
-
     steps:
       - uses: actions/checkout@v3
       - uses: azure/setup-helm@v3
