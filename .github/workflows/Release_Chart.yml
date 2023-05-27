@@ -1,0 +1,41 @@
+---
+name: Create Test Image
+'on':
+  workflow_dispatch:
+
+env:
+  REGISTRY: "ghcr.io" # GitHub Container Registry
+
+jobs:
+  module:
+    name: Create Test Environment
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Archive Test Module
+        run: mkdir /tmp/modules && tar -zcvf /tmp/modules/redis.tgz .
+        working-directory: ./modules/redis
+
+      - name: Log into the Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Metadata (tags, labels) for API
+        id: api-meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository }}-nginx-test
+
+      - name: Build and Push API Image
+        uses: docker/build-push-action@v3
+        with:
+          context: ./modules/nginx
+          push: true
+          tags: |
+            ${{ steps.api-meta.outputs.tags }}
+          labels: ${{ steps.api-meta.outputs.labels }}
+          file: ./modules/nginx
