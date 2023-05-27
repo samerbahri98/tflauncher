@@ -38,4 +38,4 @@ jobs:
           tags: |
             ${{ steps.api-meta.outputs.tags }}
           labels: ${{ steps.api-meta.outputs.labels }}
-          file: ./modules/nginx
+          file: ./modules/nginx/Dockerfile
