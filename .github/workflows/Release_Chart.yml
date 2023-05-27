@@ -32,7 +32,7 @@ jobs:
       - name: Build and Push API Image
         uses: docker/build-push-action@v3
         with:
-          context: ./modules/nginx
+          context: .
           push: true
           tags: |
             ${{ steps.api-meta.outputs.tags }}
