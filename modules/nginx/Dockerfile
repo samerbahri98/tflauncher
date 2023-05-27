@@ -23,4 +23,4 @@ ENV FCGI_SOCKET_OWNER="nginx"
 ENV FCGI_SOCKET_GROUP="nginx"
 ENV FCGI_MODE="700"
 
-RUN /etc/init.d/fcgiwrap.sh start
+# RUN /etc/conf.d/spawn-fcgi && /etc/init.d/fcgiwrap.sh start
