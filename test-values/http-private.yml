@@ -1,0 +1,8 @@
+---
+rootModule: "http://websrv/prv/redis.tgz"
+netrc:
+  create: true
+  entries:
+    - machine: websrv
+      login: ROOTNAME
+      password: CHANGEME123

@@ -1,13 +1,35 @@
 ---
 image:
-  repository: hashicorp/terraform
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: "1.4.6"
+  terraform:
+    repository: hashicorp/terraform
+    pullPolicy: IfNotPresent
+    tag: "1.4.6"
+  kubectl:
+    repository: bitnami/kubectl
+    pullPolicy: IfNotPresent
+    tag: "1.26.5"
 
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
+
+planner:
+  schedule: "*/1 * * * *"  # Every Minute
+
+netrc:
+  create: false
+  entries:
+    - machine: ""
+      login: ""
+      password: ""
+
+backendFile: |
+  secret_suffix     = "{{ include "tflauncher.fullname" . }}-state"
+  in_cluster_config = true
+
+rootModule: ""
+
+tfvarsFile: ""
 
 serviceAccount:
   # Specifies whether a service account should be created

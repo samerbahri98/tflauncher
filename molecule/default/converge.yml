@@ -1,8 +1,0 @@
----
-- hosts: molecule
-  name: converge
-  tasks:
-    - name: Deploy Minio
-      cloud.terraform.terraform:
-        project_path: "{{ LOCAL_TFM_PATH }}/k8s_minio"
-        force_init: true

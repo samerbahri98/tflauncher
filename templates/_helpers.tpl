@@ -60,3 +60,12 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+
+{{- define "tflauncher.netrc" -}}
+{{- range .Values.netrc.entries }}
+machine {{ .machine }}
+    login {{ .login }}
+    password {{ .password }}
+{{- end }}
+{{- end }}
