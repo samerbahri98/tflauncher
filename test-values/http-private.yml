@@ -9,6 +9,11 @@ serviceAccount:
 tfvarsFile: |
   namespace = "redis-http-prv"
 
+env:
+  - name: "TF_VAR_redis_password"
+    value: "foo"
+    sensitive: true
+
 netrc:
   create: true
   entries:

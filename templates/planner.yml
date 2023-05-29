@@ -50,6 +50,18 @@ spec:
               command: ["/bin/sh","/entrypoint.d/init.sh"]
               args: []
               env:
+              {{- $secretEnvName := include "tflauncher.fullname" . }}
+              {{- range $env:= .Values.env }}
+                - name: {{ $env.name }}
+                  {{- if $env.sensitive }}
+                  valueFrom:
+                    secretKeyRef:
+                      key: {{ $env.name }}
+                      name: {{ $secretEnvName }}-env
+                  {{- else }}
+                  value: {{ $env.value }}
+                  {{- end }}
+              {{- end }}
                 - name: NETRC
                   value: /credentials/.netrc
               volumeMounts:
