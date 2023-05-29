@@ -27,6 +27,13 @@ data:
       -force-copy \
       -input=false \
       -no-color;
+
+    echo "====== TF IMPORT ======";
+    terraform -chdir=/workspace/modules/{{ .Values.module.name }} import \
+      -config=/workspace/modules/{{ .Values.module.name }} \
+      -input=false \
+      -var-file=/credentials/.tfvars \
+      -no-color;
     
     echo "====== TF REFRESH ======";
     terraform -chdir=/workspace/modules/{{ .Values.module.name }} refresh \

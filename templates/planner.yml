@@ -48,8 +48,10 @@ spec:
               imagePullPolicy: {{ .Values.image.terraform.pullPolicy }}
               workingDir: /entrypoint.d
               command: ["/bin/sh","/entrypoint.d/init.sh"]
-                
               args: []
+              env:
+                - name: NETRC
+                  value: /credentials/.netrc
               volumeMounts:
                 - name: {{ include "tflauncher.fullname" . }}-output-volume
                   mountPath: /tmp

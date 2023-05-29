@@ -2,6 +2,13 @@
 module:
   name: redis
   source: "http://websrv/prv/redis.tgz"
+
+serviceAccount:
+  createCluserAdmin: true
+
+tfvarsFile: |
+  namespace = "redis-http-prv"
+
 netrc:
   create: true
   entries:
