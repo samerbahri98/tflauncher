@@ -1,5 +1,7 @@
 ---
-rootModule: "http://websrv/prv/redis.tgz"
+module:
+  name: redis
+  source: "http://websrv/prv/redis.tgz"
 netrc:
   create: true
   entries:

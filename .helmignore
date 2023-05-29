@@ -28,3 +28,5 @@ requirements.txt
 modules/
 
 test-values/
+Makefile
+docker-compose.yml

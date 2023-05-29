@@ -6,7 +6,8 @@ metadata:
   labels:
     {{- include "tflauncher.labels" . | nindent 4 }}
 spec:
-  schedule: {{ .Values.planner.schedule }}
+  schedule: "{{ .Values.planner.schedule }}"
+  concurrencyPolicy: Forbid
   jobTemplate:
     metadata:
       labels:
@@ -26,6 +27,7 @@ spec:
           imagePullSecrets:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          {{- with .Values.nodeSelector }}
           nodeSelector:
             {{- toYaml . | nindent 12 }}
           {{- end }}
@@ -37,38 +39,40 @@ spec:
           tolerations:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          containers:
+          initContainers:
             - name: {{ .Chart.Name }}-init
               securityContext:
-                readOnlyRootFilesystem: true
-              image: |
+                readOnlyRootFilesystem: false
+              image: |-
                 {{ .Values.image.terraform.repository }}:{{ .Values.image.terraform.tag }}
               imagePullPolicy: {{ .Values.image.terraform.pullPolicy }}
               workingDir: /entrypoint.d
-              command: ["/bin/sh","\"/entrypoint.d/init.sh\""]
+              command: ["/bin/sh","/entrypoint.d/init.sh"]
+                
               args: []
               volumeMounts:
                 - name: {{ include "tflauncher.fullname" . }}-output-volume
-                  mountPath: /output
-                - name: {{ include "tflauncher.fullname" . }}
+                  mountPath: /tmp
+                - name: {{ include "tflauncher.fullname" . }}-entrypoint
                   mountPath: /entrypoint.d
                 - name: {{ include "tflauncher.fullname" . }}-credentials
                   mountPath: /credentials
                 - name: {{ include "tflauncher.fullname" . }}-workspace
                   mountPath: /workspace
+          containers:
             - name: {{ .Chart.Name }}-output
               securityContext:
                 readOnlyRootFilesystem: true
-              image: |
+              image: |-
                 {{ .Values.image.kubectl.repository }}:{{ .Values.image.kubectl.tag }}
               imagePullPolicy: {{ .Values.image.kubectl.pullPolicy }}
-              workingDir: /workspace
-              command: ["/bin/sh","\"/entrypoint.d/save.sh\""]
+              workingDir: /entrypoint.d
+              command: ["/bin/sh","/entrypoint.d/save.sh"]
               args: []
               volumeMounts:
                 - name: {{ include "tflauncher.fullname" . }}-output-volume
-                  mountPath: /output
-                - name: {{ include "tflauncher.fullname" . }}
+                  mountPath: /tmp
+                - name: {{ include "tflauncher.fullname" . }}-entrypoint
                   mountPath: /entrypoint.d
           volumes:
             - name: {{ include "tflauncher.fullname" . }}-output-volume
@@ -83,4 +87,4 @@ spec:
             - name: {{ include "tflauncher.fullname" . }}-credentials
               secret:
                 secretName: {{ include "tflauncher.fullname" . }}
-          restartPolicy: Never
+          restartPolicy: OnFailure

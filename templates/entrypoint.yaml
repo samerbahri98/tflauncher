@@ -9,42 +9,61 @@ data:
   init.sh: |
     #! /bin/sh
 
+    echo "====== TF INIT ======";
     terraform -chdir=/workspace init \
-      -var-file=/credentials/.tfvars \ 
+      -from-module={{ .Values.module.source }} \
+      -get=true \
+      -force-copy \
+      -input=false \
+      -no-color;
+
+    echo "====== TF INIT ======";
+    terraform -chdir=/workspace/modules/{{ .Values.module.name }} init \
       -upgrade \
       -migrate-state \
+      -var-file=/credentials/.tfvars \
       -backend-config=/credentials/backend.tf \
-      -from-module={{ .Values.rootModule }} \
+      -get=true \
       -force-copy \
       -input=false \
       -no-color;
     
-    terraform -chdir=/workspace refresh \
+    echo "====== TF REFRESH ======";
+    terraform -chdir=/workspace/modules/{{ .Values.module.name }} refresh \
       -var-file=/credentials/.tfvars \
       -input=false \
       -no-color;
 
-    terraform -chdir=/workspace apply \
+    echo "====== TF APPLY ======";
+    terraform -chdir=/workspace/modules/{{ .Values.module.name }} apply \
       -var-file=/credentials/.tfvars \
       -auto-approve \
       -input=false \
       -no-color;
-    
-    terraform -chdir=/workspace output -no-color -json > /output/{{ include "tflauncher.fullname" . }}-output.json;
+
+    echo "====== TF OUTPUT ======";
+    terraform -chdir=/workspace/modules/{{ .Values.module.name }} output -json > /tmp/{{ include "tflauncher.fullname" . }}-output.json;
   save.sh: |
     #! /bin/sh
 
-    OUTPUT_BASE64=$(base64 -w 0 /output/{{ include "tflauncher.fullname" . }}-output.json)
+    OUTPUT_BASE64=$(base64 -w 0 /tmp/{{ include "tflauncher.fullname" . }}-output.json)
 
-    sed "s/\$\$/$OUTPUT_BASE64/" output.yaml > /tmp/output.yaml
+    sed 's/\$\$/'"$OUTPUT_BASE64"'/g' /entrypoint.d/output.yaml > /tmp/output.yaml
+
+    cat /tmp/output.yaml
 
     kubectl apply -f /tmp/output.yaml
   output.yaml: |
     apiVersion: v1
     kind: Secret
-      metadata:
-        name: {{ include "tflauncher.fullname" . }}-output
-        labels:
-          {{- include "tflauncher.labels" . | nindent 10 }}
-      data:
-        output.json: "$$"
+    metadata:
+      name: {{ include "tflauncher.fullname" . }}-output
+      labels:
+        {{- include "tflauncher.labels" . | nindent 10 }}
+    data:
+      output.json: "$$"
+  # main.tf: |
+  #   terraform {
+  #     backend "{{ .Values.backend.type }}" {}
+  #     required_version = "{{ .Values.requiredVersion }}"
+  #   }

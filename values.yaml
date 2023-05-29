@@ -9,6 +9,8 @@ image:
     pullPolicy: IfNotPresent
     tag: "1.26.5"
 
+requiredVersion: "1.4.6"
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -23,17 +25,26 @@ netrc:
       login: ""
       password: ""
 
-backendFile: |
-  secret_suffix     = "{{ include "tflauncher.fullname" . }}-state"
-  in_cluster_config = true
+backend:
+  type: kubernetes
+  file: |
+    secret_suffix     = "{{ include "tflauncher.fullname" . }}"
+    in_cluster_config = true
+    namespace         = "{{ .Release.Namespace }}"
+module: 
+  name: ""
+  source: ""
 
-rootModule: ""
+modules: []
+
+variables: []
+
+outputs: []
 
 tfvarsFile: ""
 
 serviceAccount:
-  # Specifies whether a service account should be created
-  create: true
+  createCluserAdmin: false
   # Annotations to add to the service account
   annotations: {}
   # The name of the service account to use.
