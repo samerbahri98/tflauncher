@@ -53,7 +53,7 @@ jobs:
           helm plugin install https://github.com/halkeye/helm-repo-html
       - name: Package Chart
         run: |
-          helm package mock-mlops
+          helm package .
           helm repo index --merge index.yaml .
           helm repo-html
           mkdir out
