@@ -30,3 +30,4 @@ modules/
 test-values/
 Makefile
 docker-compose.yml
+index.yaml
