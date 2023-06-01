@@ -14,6 +14,8 @@ jobs:
         test:
           - 'http-public'
           - 'http-private'
+          - 'github'
+          - 'git-http'
     steps:
       - uses: actions/checkout@v3
       - uses: azure/setup-helm@v3
