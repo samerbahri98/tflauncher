@@ -66,6 +66,12 @@ spec:
                   value: /credentials/.netrc
                 - name: TF_CLI_CONFIG_FILE
                   value: /credentials/.terraformrc
+                - name: TF_IN_AUTOMATION
+                  value: "1"
+                - name: AWS_CONFIG_FILE
+                  value: /credentials/.aws.config
+                - name: AWS_SHARED_CREDENTIALS_FILE
+                  value: /credentials/.aws.credentials
               volumeMounts:
                 - name: {{ include "tflauncher.fullname" . }}-output-volume
                   mountPath: /tmp

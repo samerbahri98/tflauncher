@@ -25,6 +25,15 @@ netrc:
       login: ""
       password: ""
 
+s3:
+  enable: false
+  entries:
+    - profile: 
+      accessKey:
+      secretKey:
+      region:
+      version:
+
 backend:
   type: kubernetes
   file: |
@@ -44,7 +53,7 @@ outputs: []
 tfvarsFile: ""
 
 terraformrc: |
-  default_backend = "k8s"
+  default_backend = "kubernetes"
 
 env: []
 

@@ -69,3 +69,19 @@ machine {{ .machine }}
     password {{ .password }}
 {{- end }}
 {{- end }}
+
+{{- define "tflauncher.s3config" -}}
+{{- range .Values.s3.entries }}
+[profile {{ .profile }}]
+region={{ .region }}
+output=json
+{{- end }}
+{{- end }}
+
+{{- define "tflauncher.s3credentials" -}}
+{{- range .Values.s3.entries }}
+[{{ .profile }}]
+aws_access_key_id={{ .accessKey }}
+aws_secret_access_key={{ .secretKey }}
+{{- end }}
+{{- end }}
