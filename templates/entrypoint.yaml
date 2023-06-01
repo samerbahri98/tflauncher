@@ -12,13 +12,6 @@ data:
     echo "====== TF INIT ======";
     terraform -chdir=/workspace init \
       -from-module={{ .Values.module.source }} \
-      -get=true \
-      -force-copy \
-      -input=false \
-      -no-color;
-
-    echo "====== TF INIT ======";
-    terraform -chdir=/workspace/modules/{{ .Values.module.name }} init \
       -upgrade \
       -migrate-state \
       -var-file=/credentials/.tfvars \
@@ -27,29 +20,22 @@ data:
       -force-copy \
       -input=false \
       -no-color;
-
-    echo "====== TF IMPORT ======";
-    terraform -chdir=/workspace/modules/{{ .Values.module.name }} import \
-      -config=/workspace/modules/{{ .Values.module.name }} \
-      -input=false \
-      -var-file=/credentials/.tfvars \
-      -no-color;
     
     echo "====== TF REFRESH ======";
-    terraform -chdir=/workspace/modules/{{ .Values.module.name }} refresh \
+    terraform -chdir=/workspace refresh \
       -var-file=/credentials/.tfvars \
       -input=false \
       -no-color;
 
     echo "====== TF APPLY ======";
-    terraform -chdir=/workspace/modules/{{ .Values.module.name }} apply \
+    terraform -chdir=/workspace apply \
       -var-file=/credentials/.tfvars \
       -auto-approve \
       -input=false \
       -no-color;
 
     echo "====== TF OUTPUT ======";
-    terraform -chdir=/workspace/modules/{{ .Values.module.name }} output -json > /tmp/{{ include "tflauncher.fullname" . }}-output.json;
+    terraform -chdir=/workspace output -json > /tmp/{{ include "tflauncher.fullname" . }}-output.json;
   save.sh: |
     #! /bin/sh
 
@@ -69,8 +55,3 @@ data:
         {{- include "tflauncher.labels" . | nindent 10 }}
     data:
       output.json: "$$"
-  # main.tf: |
-  #   terraform {
-  #     backend "{{ .Values.backend.type }}" {}
-  #     required_version = "{{ .Values.requiredVersion }}"
-  #   }

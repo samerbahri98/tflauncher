@@ -64,6 +64,8 @@ spec:
               {{- end }}
                 - name: NETRC
                   value: /credentials/.netrc
+                - name: TF_CLI_CONFIG_FILE
+                  value: /credentials/.terraformrc
               volumeMounts:
                 - name: {{ include "tflauncher.fullname" . }}-output-volume
                   mountPath: /tmp

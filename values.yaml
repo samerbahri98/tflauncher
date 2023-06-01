@@ -43,6 +43,9 @@ outputs: []
 
 tfvarsFile: ""
 
+terraformrc: |
+  default_backend = "k8s"
+
 env: []
 
 serviceAccount:
