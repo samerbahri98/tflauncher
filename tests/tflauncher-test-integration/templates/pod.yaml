@@ -101,11 +101,36 @@ spec:
       volumeMounts:
         - name: modules
           mountPath: /modules
+    - image: "{{ .Values.pg.image.repository }}:{{ .Values.pg.image.tag }}"
+      name: pg
+      securityContext:
+        {{- toYaml .Values.pg.securityContext | nindent 8 }}
+      imagePullPolicy: {{ .Values.pg.image.pullPolicy }}
+      env:
+        - name: POSTGRES_PASSWORD
+          value: {{ .Values.pg.password }}
+      volumeMounts:
+        - name: pg-data
+          mountPath: /var/lib/postgresql/data
+      livenessProbe:
+        tcpSocket:
+          port: 5432
+      readinessProbe:
+        exec:
+          command: [ "pg_isready", "-U", "{{ .Values.pg.password }}", "-d", "{{ .Values.pg.password }}" ]
+      ports:
+        - name: pg
+          containerPort: 5432
+          protocol: TCP
+
   volumes:
     - name: modules
       configMap:
         name: {{ include "tflauncher-test-integration.fullname" . }}-modules
     - name: minio-data
+      emptyDir:
+        medium: Memory
+    - name: pg-data
       emptyDir:
         medium: Memory
     - name: nginx-conf

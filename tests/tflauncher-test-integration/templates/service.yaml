@@ -15,5 +15,9 @@ spec:
       targetPort: s3
       protocol: TCP
       name: s3
+    - port: 5432
+      targetPort: pg
+      protocol: TCP
+      name: pg
   selector:
     {{- include "tflauncher-test-integration.selectorLabels" . | nindent 4 }}

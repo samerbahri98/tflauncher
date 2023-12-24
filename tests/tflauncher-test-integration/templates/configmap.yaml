@@ -42,3 +42,9 @@ binaryData:
     {{ .Files.Get "cache/redis.tgz" | b64enc | indent 4 }}
   redis.zip: |-
     {{ .Files.Get "cache/redis.zip" | b64enc | indent 4 }}
+  postgres.tar.gz: |-
+    {{ .Files.Get "cache/postgres.tgz" | b64enc | indent 4 }}
+  postgres.tgz: |-
+    {{ .Files.Get "cache/postgres.tgz" | b64enc | indent 4 }}
+  postgres.zip: |-
+    {{ .Files.Get "cache/postgres.zip" | b64enc | indent 4 }}

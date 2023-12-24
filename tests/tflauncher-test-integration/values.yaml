@@ -31,6 +31,15 @@ mc:
   accessKey: "{{ .Values.minio.accessKey }}"
   secretKey: "{{ .Values.minio.secretKey }}"
 
+pg:
+  securityContext: {}
+  image:
+    repository: postgres
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: 16.1-alpine3.18
+  password: postgres
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
