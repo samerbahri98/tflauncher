@@ -22,13 +22,4 @@
 *.tmproj
 .vscode/
 
-.venv/
-.github/
-molecule/
-requirements.txt
-modules/
-tests/
-Makefile
-docker-compose.yml
-index.yaml
-configs/
+module/

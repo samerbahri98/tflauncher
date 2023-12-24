@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "tflauncher-test-integration.fullname" . }}-test-connection"
+  labels:
+    {{- include "tflauncher-test-integration.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: nginx-test
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "tflauncher-test-integration.fullname" . }}:80']
+    - name: minio-test
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "tflauncher-test-integration.fullname" . }}:9000/minio/health/cluster}']
+  restartPolicy: Never

@@ -1,0 +1,132 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    {{- include "tflauncher-test-integration.labels" . | nindent 4 }}
+  name: {{ include "tflauncher-test-integration.fullname" . }}
+spec:
+  {{- with .Values.imagePullSecrets }}
+  imagePullSecrets:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  serviceAccountName: {{ include "tflauncher-test-integration.serviceAccountName" . }}
+  securityContext:
+    {{- toYaml .Values.podSecurityContext | nindent 4 }}
+  containers:
+    - image: "{{ .Values.websrv.image.repository }}:{{ .Values.websrv.image.tag }}"
+      name: websrv
+      securityContext:
+        {{- toYaml .Values.websrv.securityContext | nindent 8 }}
+      imagePullPolicy: {{ .Values.websrv.image.pullPolicy }}
+      ports:
+        - name: http
+          containerPort: 80
+          protocol: TCP
+      livenessProbe:
+        httpGet:
+          path: /
+          port: http
+      readinessProbe:
+        httpGet:
+          path: /
+          port: http
+      volumeMounts:
+        - name: modules
+          mountPath: /var/www/modules/pub
+        - name: modules
+          mountPath: /var/www/modules/prv
+        - name: nginx-conf
+          mountPath: /etc/nginx/conf.d
+        - name: nginx-htpasswd
+          mountPath: /etc/nginx/passwd.d
+    - image: "{{ .Values.minio.image.repository }}:{{ .Values.minio.image.tag }}"
+      name: minio
+      args: ["server", "/data"]
+      securityContext:
+        {{- toYaml .Values.minio.securityContext | nindent 8 }}
+      imagePullPolicy: {{ .Values.minio.image.pullPolicy }}
+      env:
+        - name: MINIO_ROOT_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "tflauncher-test-integration.fullname" . }}
+              key: accessKey
+        - name: MINIO_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "tflauncher-test-integration.fullname" . }}
+              key: secretKey
+      ports:
+        - name: s3
+          containerPort: 9000
+          protocol: TCP
+      livenessProbe:
+        httpGet:
+          path: /minio/health/live
+          port: s3
+          scheme: HTTP
+      readinessProbe:
+        httpGet:
+          path: /minio/health/cluster
+          port: s3
+          scheme: HTTP
+      volumeMounts:
+        - name: minio-data
+          mountPath: /data
+    - image: "{{ .Values.mc.image.repository }}:{{ .Values.mc.image.tag }}"
+      name: mc
+      securityContext:
+        {{- toYaml .Values.mc.securityContext | nindent 8 }}
+      imagePullPolicy: {{ .Values.mc.image.pullPolicy }}
+      command:
+        - bash
+        - -c
+        - >
+          sleep 5;
+          mc alias set s3 http://localhost:9000 $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD --api S3v4;
+          mc mb s3/modules;
+          mc cp /modules/* s3/modules;
+          exit 0;
+      env:
+        - name: MINIO_ROOT_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "tflauncher-test-integration.fullname" . }}
+              key: accessKey
+        - name: MINIO_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "tflauncher-test-integration.fullname" . }}
+              key: secretKey
+      volumeMounts:
+        - name: modules
+          mountPath: /modules
+  volumes:
+    - name: modules
+      configMap:
+        name: {{ include "tflauncher-test-integration.fullname" . }}-modules
+    - name: minio-data
+      emptyDir:
+        medium: Memory
+    - name: nginx-conf
+      configMap:
+        name: {{ include "tflauncher-test-integration.fullname" . }}-nginx-conf
+    - name: nginx-htpasswd
+      projected:
+        sources:
+          - secret:
+              name: {{ include "tflauncher-test-integration.fullname" . }}
+              path: .htpasswd
+  restartPolicy: OnFailure
+  {{- with .Values.nodeSelector }}
+  nodeSelector:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.affinity }}
+  affinity:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.tolerations }}
+  tolerations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}

@@ -1,0 +1,79 @@
+# Default values for tflauncher-test-integration.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+websrv:
+  securityContext: {}
+  image:
+    repository: nginx
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: 1.25-alpine3.18-slim
+  htpasswd: ROOTNAME:$2y$10$rdgCXoOyxr4zP0qDgcHifeJGKLt2B0Qj54DorNUH3Fjn7EVh4bmXO  # ROOTNAME:CHANGEME123
+
+minio:
+  securityContext: {}
+  image:
+    repository: minio/minio
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: RELEASE.2023-12-20T01-00-02Z
+  accessKey: ROOTNAME
+  secretKey: CHANGEME123
+
+mc:
+  securityContext: {}
+  image:
+    repository: minio/mc
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: RELEASE.2023-12-23T08-47-21Z
+  accessKey: "{{ .Values.minio.accessKey }}"
+  secretKey: "{{ .Values.minio.secretKey }}"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

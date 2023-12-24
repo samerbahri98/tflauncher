@@ -2,6 +2,3 @@
 module:
   name: redis
   source: "http://websrv/pub/redis.tgz"
-
-serviceAccount:
-  createCluserAdmin: true

@@ -1,0 +1,9 @@
+#! /usr/local/bin/ansible-playbook
+---
+- name: Pre-Run
+  ansible.builtin.import_playbook: /ansible/pre.yml
+
+- name: Apply
+  hosts: localhost
+  tasks:
+    - name: 

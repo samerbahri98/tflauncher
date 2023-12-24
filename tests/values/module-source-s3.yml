@@ -3,9 +3,6 @@ module:
   name: redis
   source: "s3::http://minio:9000/modules/redis.tgz"
 
-serviceAccount:
-  createCluserAdmin: true
-
 env:
   - name: AWS_METADATA_URL
     value: http://minio:9000

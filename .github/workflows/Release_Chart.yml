@@ -11,12 +11,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        test:
+        module-source:
           - http-public
           - http-private
           - github
           - git-http
           - s3
+        backend:
+          - kubernetes
     steps:
       - uses: actions/checkout@v3
       - uses: azure/setup-helm@v3
@@ -41,9 +43,10 @@ jobs:
 
       - name: Install Chart
         run: |
-          helm install tflauncher-${{ matrix.test }} . \
+          helm install tflauncher-${{ matrix.module-source }}-${{ matrix.backend }} . \
             -n tflauncher --create-namespace \
-            -f ./test-values/${{ matrix.test }}.yml
+            -f ./tests/values/module-source-${{ matrix.module-source }}.yml \
+            -f ./tests/values/backend-${{ matrix.backend }}.yml
 
   release:
     needs: [test]

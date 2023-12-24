@@ -5,7 +5,7 @@ up: kind-up docker-up
 
 .PHONY: kind-up
 kind-up:
-	kind create cluster --config=./test-values/Cluster.yaml
+	kind create cluster --config=./configs/Cluster.yaml
 
 .PHONY: docker-up
 docker-up:
@@ -16,7 +16,7 @@ down: kind-down docker-down
 
 .PHONY: kind-down
 kind-down:
-	kind delete cluster --name=molecule
+	kind delete cluster --name=tflauncher
 
 .PHONY: docker-down
 docker-down:

@@ -1,0 +1,29 @@
+---
+name: Create Test Chart
+'on':
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths: ["tests/tflauncher-test-integration"]
+
+env:
+  REGISTRY: "ghcr.io" # GitHub Container Registry
+
+jobs:
+  module:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: azure/setup-helm@v3
+      - name: Archive Redis Test Module
+        run: |
+          mkdir ../../cache 
+          tar -zcvf ../../cache/redis.tgz .
+          zip -r ../../cache/redis.zip .
+        working-directory: tests/tflauncher-test-integration/module/redis
+
+      - name: Package Chart
+        run: |
+          helm package tests/tflauncher-test-integration
+          helm registry login ${{ env.REGISTRY }} -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} 
+          helm push tflauncher-test-integration-0.1.0.tgz oci://${{ env.REGISTRY }}/${{ github.actor }}

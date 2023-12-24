@@ -2,6 +2,3 @@
 module:
   name: redis
   source: "github.com/samerbahri98/terraform-helm-launcher//modules/redis"
-
-serviceAccount:
-  createCluserAdmin: true
