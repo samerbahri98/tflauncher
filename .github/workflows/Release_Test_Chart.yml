@@ -18,6 +18,5 @@ jobs:
       - name: Package Chart
         run: |
           make test-chart-pkg
-          helm package tests/tflauncher-test-integration
           helm registry login ${{ env.REGISTRY }} -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} 
-          helm push tflauncher-test-integration-0.1.0.tgz oci://${{ env.REGISTRY }}/${{ github.actor }}
+          helm push cache/tflauncher-test-integration-0.1.0.tgz oci://${{ env.REGISTRY }}/${{ github.actor }}

@@ -86,6 +86,7 @@ spec:
           mc alias set s3 http://localhost:9000 $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD --api S3v4;
           mc mb s3/modules;
           mc cp /modules/* s3/modules;
+          mc admin user add s3 $MINIO_USER NONROOT $MINIO_ROOT_PASSWORD
           exit 0;
       env:
         - name: MINIO_ROOT_USER
@@ -98,6 +99,11 @@ spec:
             secretKeyRef:
               name: {{ include "tflauncher-test-integration.fullname" . }}
               key: secretKey
+        - name: MINIO_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "tflauncher-test-integration.fullname" . }}
+              key: minioUser
       volumeMounts:
         - name: modules
           mountPath: /modules
@@ -108,7 +114,10 @@ spec:
       imagePullPolicy: {{ .Values.pg.image.pullPolicy }}
       env:
         - name: POSTGRES_PASSWORD
-          value: {{ .Values.pg.password }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "tflauncher-test-integration.fullname" . }}
+              key: pgPassword
       volumeMounts:
         - name: pg-data
           mountPath: /var/lib/postgresql/data
@@ -117,7 +126,7 @@ spec:
           port: 5432
       readinessProbe:
         exec:
-          command: [ "pg_isready", "-U", "{{ .Values.pg.password }}", "-d", "{{ .Values.pg.password }}" ]
+          command: [ "pg_isready", "-U", "$POSTGRES_PASSWORD", "-d", "$POSTGRES_PASSWORD" ]
       ports:
         - name: pg
           containerPort: 5432

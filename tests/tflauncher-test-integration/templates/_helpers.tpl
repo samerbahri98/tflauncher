@@ -60,3 +60,15 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{- define "tflauncher-test-integration.modules" -}}
+{{ $gs := . }}
+{{- range .Values.modules }}
+{{ printf "%s.tar.gz" . }}: |-
+    {{ $gs.Files.Get (printf "cache/%s.tgz" .) | b64enc }}
+{{ printf "%s.tgz" . }}: |-
+    {{ $gs.Files.Get (printf "cache/%s.tgz" .) | b64enc }}
+{{ printf "%s.zip" . }}: |-
+    {{ $gs.Files.Get (printf "cache/%s.zip" .) | b64enc }}
+{{- end }}
+{{- end }}

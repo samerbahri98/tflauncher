@@ -36,15 +36,4 @@ metadata:
     {{- include "tflauncher-test-integration.labels" . | nindent 4 }}
   name: {{ include "tflauncher-test-integration.fullname" . }}-modules
 binaryData:
-  redis.tar.gz: |-
-    {{ .Files.Get "cache/redis.tgz" | b64enc | indent 4 }}
-  redis.tgz: |-
-    {{ .Files.Get "cache/redis.tgz" | b64enc | indent 4 }}
-  redis.zip: |-
-    {{ .Files.Get "cache/redis.zip" | b64enc | indent 4 }}
-  postgres.tar.gz: |-
-    {{ .Files.Get "cache/postgres.tgz" | b64enc | indent 4 }}
-  postgres.tgz: |-
-    {{ .Files.Get "cache/postgres.tgz" | b64enc | indent 4 }}
-  postgres.zip: |-
-    {{ .Files.Get "cache/postgres.zip" | b64enc | indent 4 }}
+{{- include "tflauncher-test-integration.modules" . | nindent 2 }}

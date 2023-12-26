@@ -1,10 +1,31 @@
 
-ROOTDIR := $(shell git rev-parse --show-toplevel)
-TEST_CACHE_DIR := $(ROOTDIR)/tests/tflauncher-test-integration/cache
-TEST_MODULE_DIR := $(ROOTDIR)/tests/tflauncher-test-integration/module
-
+ROOTDIR := $(shell pwd)
+TEST_CACHE_DIR := tests/tflauncher-test-integration/cache
+TEST_MODULE_DIR := tests/tflauncher-test-integration/module
+TEST_MODULES := $(notdir $(wildcard $(TEST_MODULE_DIR)/*))
+TEST_MODULES_TGZ := $(foreach module,$(TEST_MODULES),$(TEST_CACHE_DIR)/$(addsuffix .tgz,$(module)))
+TEST_MODULES_ZIP := $(foreach module,$(TEST_MODULES),$(TEST_CACHE_DIR)/$(addsuffix .zip,$(module)))
 
 default: up
+
+$(TEST_CACHE_DIR)/%.tgz: $(TEST_MODULE_DIR)/%/main.tf
+	mkdir -p $(TEST_CACHE_DIR)
+	cd $(dir $<) && tar -zcvf $(ROOTDIR)/$@ *;
+
+$(TEST_CACHE_DIR)/%.zip: $(TEST_MODULE_DIR)/%/main.tf
+	mkdir -p $(TEST_CACHE_DIR)
+	cd $(dir $<) && zip -r $(ROOTDIR)/$@ *;
+
+cache/tflauncher-test-integration-0.1.0.tgz: ${TEST_MODULES_TGZ} ${TEST_MODULES_ZIP}
+	mkdir -p cache
+	helm package tests/tflauncher-test-integration -d cache
+
+.PHONY: test-chart-pkg
+test-chart-pkg: cache/tflauncher-test-integration-0.1.0.tgz
+
+.PHONY: test-chart-pkg-reset
+test-chart-pkg-reset:
+	rm -rf cache tests/tflauncher-test-integration/cache;
 
 .PHONY: up
 up: kind-up docker-up
@@ -27,23 +48,3 @@ kind-down:
 .PHONY: docker-down
 docker-down:
 	docker compose down -v
-
-.PHONY: test-chart-pkg-redis
-test-chart-pkg-redis:
-	cd $(TEST_MODULE_DIR)/redis && tar -zcvf $(TEST_CACHE_DIR)/redis.tgz main.tf;
-	cd $(TEST_MODULE_DIR)/redis && zip -r $(TEST_CACHE_DIR)/redis.zip .;
-
-.PHONY: test-chart-pkg-postgres
-test-chart-pkg-postgres:
-	cd $(TEST_MODULE_DIR)/postgres && tar -zcvf $(TEST_CACHE_DIR)/postgres.tgz main.tf;
-	cd $(TEST_MODULE_DIR)/postgres && zip -r $(TEST_CACHE_DIR)/postgres.zip .;
-
-.PHONY: test-chart-pkg-reset
-test-chart-pkg-reset:
-	rm -rf $(ROOTDIR)/tflauncher-test-integration*.tgz
-	rm -rf $(ROOTDIR)/tests/tflauncher-test-integration/cache;
-	mkdir -p $(ROOTDIR)/tests/tflauncher-test-integration/cache;
-
-.PHONY: test-chart-pkg
-test-chart-pkg: test-chart-pkg-reset test-chart-pkg-redis test-chart-pkg-postgres
-	helm package $(ROOTDIR)/tests/tflauncher-test-integration

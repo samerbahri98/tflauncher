@@ -28,8 +28,7 @@ mc:
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
     tag: RELEASE.2023-12-23T08-47-21Z
-  accessKey: "{{ .Values.minio.accessKey }}"
-  secretKey: "{{ .Values.minio.secretKey }}"
+  minioUser: NONROOT
 
 pg:
   securityContext: {}
@@ -39,6 +38,11 @@ pg:
     # Overrides the image tag whose default is the chart appVersion.
     tag: 16.1-alpine3.18
   password: postgres
+
+modules:
+  - redis
+  - postgres
+  - s3
 
 imagePullSecrets: []
 nameOverride: ""
