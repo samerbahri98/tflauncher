@@ -4,7 +4,7 @@ name: Create Test Chart
   workflow_dispatch:
   push:
     branches: ["main"]
-    paths: ["tests/tflauncher-test-integration/**"]
+    paths: ["helm_charts/tflauncher-test-integration/**"]
 
 env:
   REGISTRY: "ghcr.io" # GitHub Container Registry

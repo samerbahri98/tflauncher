@@ -1,7 +1,0 @@
----
-- name: Pre-Run
-  hosts: localhost
-  tasks:
-    - name: Skip
-      ansible.builtin.debug:
-        msg: No Tasks, Skipping...
