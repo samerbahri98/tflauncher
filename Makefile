@@ -20,12 +20,19 @@ cache/tflauncher-test-integration-0.1.0.tgz: ${TEST_MODULES_TGZ} ${TEST_MODULES_
 	mkdir -p cache
 	helm package helm_charts/tflauncher-test-integration -d cache
 
+cache/tflauncher-0.1.0.tgz:
+	mkdir -p cache
+	helm package helm_charts/tflauncher -d cache
+
 .PHONY: test-chart-pkg
 test-chart-pkg: cache/tflauncher-test-integration-0.1.0.tgz
 
-.PHONY: test-chart-pkg-reset
-test-chart-pkg-reset:
+.PHONY: reset
+reset:
 	rm -rf cache helm_charts/tflauncher-test-integration/cache;
+
+.PHONY: chart-pkg
+chart-pkg: cache/tflauncher-0.1.0.tgz
 
 .PHONY: up
 up: kind-up docker-up
