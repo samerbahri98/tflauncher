@@ -1,0 +1,3 @@
+---
+- name: Test integration chart deployment
+  ansible.builtin.import_playbook: test_integration_chart_deployment.yml

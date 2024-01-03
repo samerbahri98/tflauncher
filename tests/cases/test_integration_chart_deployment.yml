@@ -1,0 +1,99 @@
+---
+- name: Test integration chart deployment
+  hosts: localhost
+  vars:
+    test_id_generate: true
+    test_integration_chart_ref: "{{ lookup('ansible.builtin.pipe', 'git rev-parse --show-toplevel') }}/helm_charts/tflauncher-test-integration"
+    test_integration_live_containers:
+      - minio
+      - pg
+      - websrv
+    test_integration_terminated_containers:
+      - mc
+  tasks:
+    - name: Test ID
+      ansible.builtin.include_tasks: ./tasks/generate_test_id.yml
+
+    - name: Deploy Integration Chart
+      kubernetes.core.helm:
+        name: tflauncher-test-integration-{{ test_id }}
+        chart_ref: "{{ test_integration_chart_ref }}"
+        release_namespace: test-{{ test_id }}
+        create_namespace: true
+        state: present
+        wait: true
+
+    - name: Verify Integration Chart Pod Ready
+      ansible.builtin.assert:
+        that:
+          - >
+            query(
+            'kubernetes.core.k8s',
+            api_version='v1',
+            kind='Pod',
+            namespace='test-'+test_id,
+            name='tflauncher-test-integration-'+test_id
+            )[0]['status']['phase']=='Running'
+      retries: 30
+      delay: 10  # 5 minutes
+
+    - name: Verify Integration Chart Containers
+      vars:
+        test_integration_pod_definition: |-
+          {{
+            query(
+            'kubernetes.core.k8s',
+            api_version='v1',
+            kind='Pod',
+            namespace='test-'+test_id,
+            name='tflauncher-test-integration-'+test_id
+            )[0]
+          }}
+      ansible.builtin.assert:
+        that: >
+          (test_integration_pod_definition['status']['containerStatuses'] | length) 
+          ==
+          (test_integration_terminated_containers | length) + (test_integration_live_containers | length)
+
+    - name: Verify Integration Chart Live Containers
+      vars:
+        test_integration_pod_definition: |-
+          {{
+            query(
+            'kubernetes.core.k8s',
+            api_version='v1',
+            kind='Pod',
+            namespace='test-'+test_id,
+            name='tflauncher-test-integration-'+test_id
+            )[0]
+          }}
+      ansible.builtin.assert:
+        that: test_integration_container['ready']
+      loop: "{{ test_integration_pod_definition['status']['containerStatuses'] | selectattr('name','in',test_integration_live_containers) | list }}"
+      loop_control:
+        loop_var: test_integration_container
+      retries: 4
+      delay: 5  # 5 minutes
+
+    - name: Verify Integration Chart Terminated Containers
+      vars:
+        test_integration_pod_definition: |-
+          {{
+            query(
+            'kubernetes.core.k8s',
+            api_version='v1',
+            kind='Pod',
+            namespace='test-'+test_id,
+            name='tflauncher-test-integration-'+test_id
+            )[0]
+          }}
+      ansible.builtin.assert:
+        that:
+          - test_integration_container.state.terminated is defined
+          - test_integration_container['state']['terminated']['reason'] == 'Completed'
+      loop: "{{ test_integration_pod_definition['status']['containerStatuses'] | selectattr('name','in',test_integration_terminated_containers) | list }}"
+      loop_control:
+        loop_var: test_integration_container
+      retries: 20
+      delay: 3  # 1 minute
+      until: test_integration_container.state.terminated is defined

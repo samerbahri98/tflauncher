@@ -1,0 +1,16 @@
+---
+- name: Generate Test ID
+  ansible.builtin.debug:
+    msg: "{{ lookup('community.general.random_string',special=false,upper=false) }}"
+  register: results
+  when: test_id_generate
+
+- name: Save Test ID
+  ansible.builtin.set_fact:
+    test_id: "{{ results.msg }}"
+  when: test_id_generate
+
+- name: Save Test ID
+  ansible.builtin.set_fact:
+    test_id: "{{ test_id }}"
+  when: not test_id_generate

@@ -86,7 +86,7 @@ spec:
           mc alias set s3 http://localhost:9000 $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD --api S3v4;
           mc mb s3/modules;
           mc cp /modules/* s3/modules;
-          mc admin user add s3 $MINIO_USER NONROOT $MINIO_ROOT_PASSWORD
+          mc admin user add s3 $MINIO_USER $MINIO_USER_KEY;
           exit 0;
       env:
         - name: MINIO_ROOT_USER
@@ -104,6 +104,11 @@ spec:
             secretKeyRef:
               name: {{ include "tflauncher-test-integration.fullname" . }}
               key: minioUser
+        - name: MINIO_USER_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "tflauncher-test-integration.fullname" . }}
+              key: minioUserKey
       volumeMounts:
         - name: modules
           mountPath: /modules

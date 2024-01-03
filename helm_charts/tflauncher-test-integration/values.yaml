@@ -29,6 +29,7 @@ mc:
     # Overrides the image tag whose default is the chart appVersion.
     tag: RELEASE.2023-12-23T08-47-21Z
   minioUser: NONROOT
+  minioUserKey: CHANGEME1234
 
 pg:
   securityContext: {}

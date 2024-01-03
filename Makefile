@@ -35,23 +35,15 @@ reset:
 chart-pkg: cache/tflauncher-0.1.0.tgz
 
 .PHONY: up
-up: kind-up docker-up
+up: kind-up
 
 .PHONY: kind-up
 kind-up:
 	kind create cluster --config=./configs/Cluster.yaml
 
-.PHONY: docker-up
-docker-up:
-	docker compose up -d
-
 .PHONY: down
-down: kind-down docker-down
+down: kind-down
 
 .PHONY: kind-down
 kind-down:
 	kind delete cluster --name=tflauncher
-
-.PHONY: docker-down
-docker-down:
-	docker compose down -v
